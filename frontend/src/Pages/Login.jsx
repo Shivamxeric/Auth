@@ -20,7 +20,7 @@ export default function Login() {
  const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const res = await fetch("http://127.0.0.1:8000/login/", {
+  const res = await fetch("https://auth-ye7t.onrender.com/login/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
