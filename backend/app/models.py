@@ -11,9 +11,6 @@ class Auth(models.Model):
     email = models.EmailField(max_length=100)
     password = models.CharField(max_length=100)
 
-    class Meta:
-        db_table = 'Auth'   # 👈 this is the key
-
 
     def __str__(self):
         return self.username
