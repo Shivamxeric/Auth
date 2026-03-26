@@ -92,8 +92,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #         'PORT': '3306',                     
 #     }
 # }       
+
+
+
 DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    'default': dj_database_url.parse(
+        os.environ.get(
+            'DATABASE_URL',
+            'sqlite:///db.sqlite3'   # 👈 fallback for local
+        )
+    )
 }
 
 # Password validation
