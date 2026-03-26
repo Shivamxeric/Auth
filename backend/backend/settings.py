@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os 
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -57,6 +58,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,17 +81,20 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         # my sql import mysqlclient
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'Alls',
+#         'USER': 'root',
+#         'PASSWORD': 'Sjha40449@',
+#         'HOST': 'localhost',
+#         'PORT': '3306',                     
+#     }
+# }       
 DATABASES = {
-    'default': {
-        # my sql import mysqlclient
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'Alls',
-        'USER': 'root',
-        'PASSWORD': 'Sjha40449@',
-        'HOST': 'localhost',
-        'PORT': '3306',                     
-    }
-}       
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
