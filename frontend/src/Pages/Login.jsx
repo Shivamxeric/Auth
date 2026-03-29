@@ -32,6 +32,7 @@ export default function Login() {
   const data = await res.json();
 
   if (data.status === "success") {
+    console.log(data);
     toast.success("Login Successful 🎉");
     localStorage.setItem("token", data.token);    
     setTimeout(() => navigate("/home"), 1500);
