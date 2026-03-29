@@ -1,29 +1,53 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./style.css";
 
 export default function Home() {
-  const navigate = useNavigate();
-  const user = localStorage.getItem("user");
+      const navigate = useNavigate();
+      const [user, setUser] = useState("");
 
-  useEffect(() => {
-    if (!user) navigate("/");
-  }, []);
+      const token = localStorage.getItem("token");
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/");
-  };
+      useEffect(() => {
+      if (!token) {
+      navigate("/");
+      return;
+      }
 
-  return (
-    <div className="bg">
-      <div className="card home">
-        <h1>Welcome 🎉</h1>
-        <p>Logged in as:</p>
-        <h3>{user}</h3>
 
-        <button onClick={handleLogout}>Logout 🚪</button>
+      fetch("https://auth-ye7t.onrender.com/home/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            setUser(data.message); // or extract username
+          } else {
+            localStorage.removeItem("token");
+            navigate("/");
+          }
+        })
+        .catch(() => {
+          navigate("/");
+        });
+
+
+      }, []);
+
+      const handleLogout = () => {
+      localStorage.removeItem("token");
+      navigate("/");
+      };
+
+      return ( <div className="bg"> <div className="card home"> <h1>Welcome 🎉</h1> <p>{user}</p>
+
+      ```
+          <button onClick={handleLogout}>Logout 🚪</button>
+        </div>
       </div>
-    </div>
-  );
-}
+      
+
+      );
+      }

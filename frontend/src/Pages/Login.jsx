@@ -23,7 +23,8 @@ export default function Login() {
   const res = await fetch("https://auth-ye7t.onrender.com/login/", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+          
+          "Content-Type": "application/json",      
     },
     body: JSON.stringify(form),
   });
@@ -32,8 +33,7 @@ export default function Login() {
 
   if (data.status === "success") {
     toast.success("Login Successful 🎉");
-    localStorage.setItem("user", form.email);
-
+    localStorage.setItem("token", data.token);    
     setTimeout(() => navigate("/home"), 1500);
   } else {
     toast.error(data.message);

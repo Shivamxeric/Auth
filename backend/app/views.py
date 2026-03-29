@@ -1,8 +1,13 @@
+import email
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Auth
 import json
-
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import InvalidToken
+from django.contrib.auth.hashers import make_password, check_password
 
 # ================= REGISTER =================
 @csrf_exempt
@@ -39,8 +44,8 @@ def register(request):
             Auth.objects.create(
                 username=username,
                 email=email,
-                password=password
-            )
+                password=make_password(password)   # ✅ HASH
+          )
 
             return JsonResponse({
                 "status": "success",
@@ -74,14 +79,19 @@ def login(request):
                 })
 
             try:
-                user = Auth.objects.get(email=email, password=password)
-
-                # Create session
-                request.session['user'] = email
+                user = Auth.objects.get(email=email)
+                if not user.check_password(password):
+                    return JsonResponse({
+                        "status": "failed",
+                        "message": "Invalid credentials"
+                    })
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
 
                 return JsonResponse({
-                    "status": "success",
-                    "message": "Login successful"
+                "status": "success",
+                "message": "Login successful",
+                "token": access_token
                 })
 
             except Auth.DoesNotExist:
@@ -102,26 +112,38 @@ def login(request):
 # ================= LOGOUT =================
 @csrf_exempt
 def logout(request):
-    request.session.flush()
-
     return JsonResponse({
         "status": "success",
-        "message": "Logged out successfully"
+        "message": "Logout successful (client should delete token)"
     })
-
 
 # ================= HOME (PROTECTED) =================
 @csrf_exempt
 def home(request):
-    user = request.session.get('user')
 
-    if not user:
+    auth = JWTAuthentication()
+
+    
+    try:
+        user_auth = auth.authenticate(request)
+
+        if user_auth is None:
+            return JsonResponse({
+                "status": "failed",
+                "message": "Authentication required"
+            })
+
+        user, token = user_auth
+
         return JsonResponse({
-            "status": "failed",
-            "message": "Unauthorized"
+            "status": "success",
+            "message": f"Welcome {user.username}!"
         })
 
-    return JsonResponse({
-        "status": "success",
-        "message": f"Welcome {user}"
-    })
+    except InvalidToken:
+        return JsonResponse({
+            "status": "failed",
+            "message": "Invalid token"
+        })
+ 
+ 
