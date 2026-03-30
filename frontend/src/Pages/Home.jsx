@@ -25,6 +25,7 @@ export default function Home() {
     .then(res => res.json())
     .then(data => {
       if (data.status !== "success") {
+        setUser(data.message);
         localStorage.removeItem("token");
         navigate("/");
       }
