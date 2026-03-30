@@ -1,13 +1,14 @@
-import email
-
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Auth
 import json
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken
+
 from django.contrib.auth.hashers import make_password, check_password
+
 
 # ================= REGISTER =================
 @csrf_exempt
@@ -20,19 +21,17 @@ def register(request):
             email = data.get('email')
             password = data.get('password')
 
-            # Validation
             if not username or not email or not password:
                 return JsonResponse({
                     "status": "failed",
                     "message": "All fields are required"
-                })            
+                })
 
-            # Check duplicates
             if Auth.objects.filter(email=email).exists():
                 return JsonResponse({
                     "status": "failed",
                     "message": "Email already exists"
-                })                      
+                })
 
             if Auth.objects.filter(username=username).exists():
                 return JsonResponse({
@@ -40,12 +39,11 @@ def register(request):
                     "message": "Username already exists"
                 })
 
-            # Create user
             Auth.objects.create(
                 username=username,
                 email=email,
-                password=make_password(password)   # ✅ HASH
-          )
+                password=make_password(password)
+            )
 
             return JsonResponse({
                 "status": "success",
@@ -58,7 +56,10 @@ def register(request):
                 "message": str(e)
             })
 
-    return JsonResponse({"message": "Invalid request"})
+    return JsonResponse({
+        "status": "failed",
+        "message": "Invalid request"
+    })
 
 
 # ================= LOGIN =================
@@ -71,7 +72,6 @@ def login(request):
             email = data.get('email')
             password = data.get('password')
 
-            # Validation
             if not email or not password:
                 return JsonResponse({
                     "status": "failed",
@@ -80,18 +80,19 @@ def login(request):
 
             try:
                 user = Auth.objects.get(email=email)
-                if not user.check_password(password):
+
+                if not check_password(password, user.password):
                     return JsonResponse({
                         "status": "failed",
                         "message": "Invalid credentials"
                     })
+
                 refresh = RefreshToken.for_user(user)
-                access_token = str(refresh.access_token)
 
                 return JsonResponse({
-                "status": "success",
-                "message": "Login successful",
-                "token": access_token
+                    "status": "success",
+                    "message": "Login successful",
+                    "token": str(refresh.access_token)
                 })
 
             except Auth.DoesNotExist:
@@ -106,7 +107,10 @@ def login(request):
                 "message": str(e)
             })
 
-    return JsonResponse({"message": "Invalid request"})
+    return JsonResponse({
+        "status": "failed",
+        "message": "Invalid request"
+    })
 
 
 # ================= LOGOUT =================
@@ -114,16 +118,15 @@ def login(request):
 def logout(request):
     return JsonResponse({
         "status": "success",
-        "message": "Logout successful (client should delete token)"
+        "message": "Logout successful (delete token from frontend)"
     })
+
 
 # ================= HOME (PROTECTED) =================
 @csrf_exempt
 def home(request):
-
     auth = JWTAuthentication()
 
-    
     try:
         user_auth = auth.authenticate(request)
 
@@ -137,7 +140,7 @@ def home(request):
 
         return JsonResponse({
             "status": "success",
-            "message": f"Welcome {user.username}!"
+            "message": f"Welcome {user.username} 🎉"
         })
 
     except InvalidToken:
@@ -145,5 +148,3 @@ def home(request):
             "status": "failed",
             "message": "Invalid token"
         })
- 
- 
