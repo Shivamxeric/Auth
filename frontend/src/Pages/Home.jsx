@@ -9,29 +9,32 @@ export default function Home() {
       const token = localStorage.getItem("token");
 
       useEffect(() => {
-      if (!token) {
-      navigate("/");
-      return;
-      }
-
-
-      fetch("https://auth-ye7t.onrender.com/home/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "success") {
-            setUser(data.message); // or extract username
-          } else {
-            localStorage.removeItem("token");
-            navigate("/");
-          }
-        })
-        .catch(() => {
+        const token = localStorage.getItem("token");
+      
+        if (!token) {
           navigate("/");
-        });
+          return;
+        }
+      
+        fetch("https://auth-ye7t.onrender.com/home/", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "success") {
+        localStorage.removeItem("token");
+        navigate("/");
+      }
+    })
+    .catch(() => {
+      navigate("/");
+    });
+
+}, []);
+      
 
 
       }, []);
