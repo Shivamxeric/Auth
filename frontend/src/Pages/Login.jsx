@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -17,35 +17,32 @@ export default function Login() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const res = await fetch("https://auth-ye7t.onrender.com/login/", {
-    method: "POST",
-    headers: {
-          
-          "Content-Type": "application/json",      
-    },
-    body: JSON.stringify(form),
-  });
+    const res = await fetch("https://auth-ye7t.onrender.com/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-if (data.status === "success" && data.token) {
-  localStorage.setItem("token", data.token);
-  toast.success("Login Successful 🎉");
+    if (data.status === "success" && data.token) {
+      localStorage.setItem("token", data.token);
+      toast.success("Login Successful 🎉");
 
-  setTimeout(() => {
-    navigate("/home");
-  }, 1500);
-
-} else {
-  toast.error(data.message || "Login failed");
-}   
-   
+      setTimeout(() => {
+        navigate("/home");
+      }, 1500);
+    } else {
+      toast.error(data.message || "Login failed");
+    }
+  }; // ✅ IMPORTANT (YOU MISSED THIS)
 
   return (
-    
     <div className="bg">
       <div className="card">
         <h2>Welcome Back 🔐</h2>
@@ -66,11 +63,7 @@ if (data.status === "success" && data.token) {
         <span onClick={() => navigate("/register")}>
           New user? Register 😎
         </span>
-      </div>   
-    </div> 
-
-  ); 
-}     
-         
- 
-  
+      </div>
+    </div>
+  );
+}
