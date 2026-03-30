@@ -31,15 +31,18 @@ export default function Login() {
 
   const data = await res.json();
 
-  if (data.status === "success") {
-    console.log(data);
-    toast.success("Login Successful 🎉");
-    localStorage.setItem("token", data.token);    
-    setTimeout(() => navigate("/home"), 1500);
-  } else {
-    toast.error(data.message);
-  }
-};
+if (data.status === "success" && data.token) {
+  localStorage.setItem("token", data.token);
+  toast.success("Login Successful 🎉");
+
+  setTimeout(() => {
+    navigate("/home");
+  }, 1500);
+
+} else {
+  toast.error(data.message || "Login failed");
+}   
+   
 
   return (
     
